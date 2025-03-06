@@ -119,6 +119,7 @@ async function ehPagecontentload(page) {
 
         const basePage = page.replace('.html', '');
         const filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
+        console.log('Loading file:', filePath); // Add this line
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
@@ -138,6 +139,7 @@ async function ehPagecontentload(page) {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
+            console.error('Load failed:', response.status, response.statusText);
             throw new Error(`${response.status}: ${response.statusText}`);
         }
 
@@ -379,8 +381,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function logError(error, context) {
-    console.error(`[${context}]:`, error);
-    // Add your production error logging service here
-    // Example: sendToErrorTracking(error, context);
-}
