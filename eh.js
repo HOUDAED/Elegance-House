@@ -365,19 +365,29 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeMobileMenu();
         initializeTheme();
         initializeLanguage();
-        initializeTabs();
-
+        initializeTabs(); // Add this line - it was missing
+        
+        // Load default tab content
         const defaultTab = document.getElementById('defaultOpen');
-        if (defaultTab?.dataset.page) {
+        if (defaultTab) {
             ehPagecontentload(defaultTab.dataset.page);
+        } else {
+            console.error('Default tab not found');
         }
-
-        // Add cleanup on page unload
-        window.addEventListener('unload', () => {
-            EH.cleanup();
-        });
     } catch (error) {
         console.error('Initialization error:', error);
     }
 });
+
+function logError(error, context) {
+    const errorInfo = {
+        context,
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+        currentLang: EH.state.currentLang,
+        currentTab: EH.state.currentTab
+    };
+    console.error('Error:', errorInfo);
+}
 

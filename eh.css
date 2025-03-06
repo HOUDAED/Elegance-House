@@ -811,3 +811,18 @@ body {
     outline: var(--focus-ring);
     outline-offset: var(--focus-ring-offset);
 }
+
+.eh-content {
+    margin-top: 140px; /* Adjust based on your header height */
+    padding: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+.ehtabcontent {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -56,7 +56,7 @@
                 </button>
             </div>
             <div class="eh-mobile-links">
-                <a href="#" data-page="new" data-translate="nav_new">Nouveau</a>
+                <a href="#" data-page="new" data-translate="nav_new" id="defaultOpen">Nouveau</a>
                 <a href="#" data-page="product" data-translate="nav_products">Produits</a>
                 <a href="#" data-page="formation" data-translate="nav_formation">Formation</a>
                 <a href="#" data-page="promotion" data-translate="nav_promotion">Promotion</a>
@@ -79,17 +79,9 @@
         </nav>
     </div>
 
-    <!-- Navigation tabs -->
-    <nav class="eh_tab_links" role="navigation">
-        <button class="eh_tablink" data-page="new" data-translate="nav_new" id="defaultOpen">Nouveau</button>
-        <button class="eh_tablink" data-page="product" data-translate="nav_products">Produits</button>
-        <button class="eh_tablink" data-page="formation" data-translate="nav_formation">Formation</button>
-        <button class="eh_tablink" data-page="promotion" data-translate="nav_promotion">Promotion</button>
-        <button class="eh_tablink" data-page="contact" data-translate="nav_contact">Contact</button>
-    </nav>
-
     <!-- Main content -->
-    <main id="ehPagecontent" role="main">
+    <main id="ehPagecontent" class="eh-content" role="main">
+        <!-- Content will be loaded here -->
         <div class="eh-loading">
             <i class="fas fa-spinner fa-spin"></i>
             <span>Chargement en cours...</span>
