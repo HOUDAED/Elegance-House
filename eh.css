@@ -17,6 +17,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --focus-ring: 2px solid var(--primary-color);
     --focus-ring-offset: 2px;
+    color-scheme: light dark;
 }
 
 :root.dark-theme {
@@ -28,6 +29,13 @@
     --card-bg: #2d2d2d;
     --border-color: #404040;
     --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Add to prevent dark mode flash */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light-theme) {
+        /* Your dark theme variables */
+    }
 }
 
 /*Style global pour le corp de la page*/
@@ -223,13 +231,13 @@ body {
     min-height: calc(100vh - 150px);
 }
 
-/* Add mobile menu styles */
+/* Fix mobile menu positioning and animation */
 .eh-mobile-menu {
     position: fixed;
     top: 0;
-    left: -280px;
-    width: 280px;
-    height: 100vh;
+    left: -100%;  /* Change from -280px to -100% */
+    width: 280px;  /* Change to full width */
+    height: 100%;
     background: var(--bg-color);
     z-index: var(--z-mobile-menu); /* This is good, keep higher than others */
     transition: transform 0.3s ease;
@@ -243,7 +251,7 @@ body {
 }
 
 .eh-mobile-menu.active {
-    transform: translateX(280px);
+    transform: translateX(100%); /* Change from 280px to 100% */
 }
 
 .eh-mobile-nav {
@@ -414,7 +422,7 @@ body {
 }
 
 .eh-mobile-controls {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -880,4 +888,56 @@ body {
     text-align: center;
     padding: 40px;
     color: var(--error-color);
+}
+
+/* Add iOS Safari fixes */
+@supports (-webkit-touch-callout: none) {
+    .eh-mobile-menu {
+        height: -webkit-fill-available;
+    }
+    
+    .eh-mobile-controls {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* Prevent zoom on inputs */
+    input, select {
+        font-size: 16px !important;
+    }
+}
+
+/* Add touch device improvements */
+@media (pointer: coarse) {
+    .eh_tablink,
+    .eh-theme-toggle,
+    .eh-lang-toggle,
+    .eh-mobile-close,
+    .search-button {
+        min-height: 44px; /* Minimum touch target size */
+    }
+    
+    .eh-mobile-links a {
+        padding: 12px 10px;
+    }
+}
+
+/* Add overlay when menu is open */
+.eh-mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: calc(var(--z-mobile-menu) - 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.eh-mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }

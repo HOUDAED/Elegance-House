@@ -182,35 +182,46 @@ async function ehPagecontentload(page) {
 
 // Fix mobile menu initialization
 function initializeMobileMenu() {
-    const mobileMenu = document.querySelector(EH.selectors.mobileMenu);
     const menuToggle = document.querySelector(EH.selectors.menuToggle);
+    const mobileMenu = document.querySelector(EH.selectors.mobileMenu);
     const closeButton = document.querySelector(EH.selectors.closeButton);
     const mobileLinks = document.querySelectorAll(EH.selectors.mobileLinks);
-
-    if (!mobileMenu || !menuToggle || !closeButton) {
-        console.error('Mobile menu elements not found');
-        return;
+    
+    // Create and add overlay if it doesn't exist
+    let overlay = document.querySelector('.eh-mobile-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'eh-mobile-overlay';
+        document.body.appendChild(overlay);
     }
 
-    const toggleMenu = () => {
-        mobileMenu.classList.add('active');
-        mobileMenu.setAttribute('aria-hidden', 'false');
+    function openMenu() {
+        mobileMenu?.classList.add('active');
+        overlay?.classList.add('active');
         document.body.style.overflow = 'hidden';
-    };
+        mobileMenu?.setAttribute('aria-hidden', 'false');
+    }
 
-    // Use the new addListener method
-    EH.addListener(menuToggle, 'click', toggleMenu);
-    EH.addListener(closeButton, 'click', closeMenu);
-    EH.addListener(document, 'click', (e) => {
-        if (mobileMenu.classList.contains('active') && 
-            !mobileMenu.contains(e.target) && 
-            !menuToggle.contains(e.target)) {
-            closeMenu();
-        }
-    });
+    function closeMenu() {
+        mobileMenu?.classList.remove('active');
+        overlay?.classList.remove('active');
+        document.body.style.overflow = '';
+        mobileMenu?.setAttribute('aria-hidden', 'true');
+    }
 
+    // Remove existing listeners before adding new ones
+    menuToggle?.removeEventListener('click', openMenu);
+    closeButton?.removeEventListener('click', closeMenu);
+    overlay?.removeEventListener('click', closeMenu);
+
+    // Add new listeners
+    menuToggle?.addEventListener('click', openMenu);
+    closeButton?.addEventListener('click', closeMenu);
+    overlay?.addEventListener('click', closeMenu);
+
+    // Handle mobile links
     mobileLinks.forEach(link => {
-        EH.addListener(link, 'click', (e) => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
             const page = e.currentTarget.dataset.page;
             if (page) {
@@ -218,6 +229,13 @@ function initializeMobileMenu() {
                 closeMenu();
             }
         });
+    });
+
+    // Handle escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenu?.classList.contains('active')) {
+            closeMenu();
+        }
     });
 }
 
