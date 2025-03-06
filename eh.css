@@ -8,6 +8,15 @@
     --border-color: #e0e0e0;
     --shadow-color: rgba(0, 0, 0, 0.1);
     transition: color 0.3s ease, background-color 0.3s ease;
+    /* Standardize transitions */
+    --transition-speed: 0.3s;
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    --z-header: 1001;
+    --z-tabs: 1000;
+    --z-mobile-menu: 2000;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --focus-ring: 2px solid var(--primary-color);
+    --focus-ring-offset: 2px;
 }
 
 :root.dark-theme {
@@ -19,13 +28,6 @@
     --card-bg: #2d2d2d;
     --border-color: #404040;
     --shadow-color: rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] {
-    --primary-color: #fff;
-    --bg-color: #1a1a1a;
-    --text-color: #ffffff;
-    --header-bg: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
 }
 
 /*Style global pour le corp de la page*/
@@ -48,7 +50,7 @@ body {
     width: 100%;
     height: 80px;
     background: var(--header-bg);
-    z-index: 1001;
+    z-index: var(--z-header);
     padding: 15px 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     box-sizing: border-box;
@@ -168,23 +170,27 @@ body {
     color: #333;
 }
 
+/* Update tab navigation styles */
 .eh_tab_links {
     position: fixed;
     top: 80px;
     left: 0;
     width: 100%;
-    background: linear-gradient(to right, #2c3e50, #34495e);
-    z-index: 1000;
+    background: var(--header-bg);
+    z-index: var(--z-tabs);
     padding: 12px;
     display: flex;
     justify-content: center;
     gap: 15px;
     box-sizing: border-box;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
+/* Tab buttons adjustments */
 .eh_tablink {
     flex: 1;
-    max-width: 180px;
+    max-width: 200px;
+    min-width: 120px;
     padding: 12px 20px;
     background-color: var(--card-bg);
     color: var(--text-color);
@@ -197,6 +203,7 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .eh_tablink:hover {
@@ -224,11 +231,14 @@ body {
     width: 280px;
     height: 100vh;
     background: var(--bg-color);
-    z-index: 2000;
+    z-index: var(--z-mobile-menu); /* This is good, keep higher than others */
     transition: left 0.3s ease;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     background-color: var(--bg-color);
     border-right: 1px solid var(--border-color);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    will-change: transform;
 }
 
 .eh-mobile-menu.active {
@@ -278,6 +288,11 @@ body {
     padding-left: 15px;
 }
 
+
+.dark-theme .eh-mobile-links a:hover {
+    background: rgba(255,255,255,0.05);
+}
+
 .eh-header-controls {
     display: flex;
     align-items: center;
@@ -287,7 +302,6 @@ body {
 /* Sophisticated theme toggle redesign */
 .eh-theme-toggle, .eh-lang-toggle {
     /* Keep positioning */
-    background: var(--bg-color);
     position: relative;
     padding: 10px 16px;
     border: none;
@@ -297,15 +311,24 @@ body {
     align-items: center;
     gap: 8px;
     /* New sophisticated styling */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(255, 255, 255, 0.1);
+    /* Add @supports check */
+    @supports (backdrop-filter: blur(8px)) {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Fallback for browsers that don't support backdrop-filter */
+    @supports not (backdrop-filter: blur(8px)) {
+        background: var(--bg-color);
+    }
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -1px rgba(0, 0, 0, 0.06),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 
 .eh-theme-toggle:hover {
@@ -339,8 +362,15 @@ body {
 }
 
 .dark-icon {
-    color: #7f7fd5;
-    text-shadow: 0 0 10px rgba(127, 127, 213, 0.4);
+    display: none;
+}
+
+.dark-theme .light-icon {
+    display: none;
+}
+
+.dark-theme .dark-icon {
+    display: inline-block;
 }
 
 /* Theme-specific styles */
@@ -361,8 +391,7 @@ body {
 /* Accessibility focus styles */
 .eh-theme-toggle:focus-visible {
     outline: none;
-    ring: 2px solid var(--primary-color);
-    ring-offset: 2px;
+    box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 /* Animation for icon rotation */
@@ -381,23 +410,15 @@ body {
     color: var(--primary-color);
 }
 
-.dark-icon {
-    display: none;
-}
-
-[data-theme="dark"] .light-icon {
-    display: none;
-}
-
-[data-theme="dark"] .dark-icon {
-    display: inline-block;
-}
-
 .eh-mobile-controls {
     margin-top: auto;
     padding: 20px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    display: none;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .eh-theme-toggle-mobile, .eh-lang-select-mobile {
@@ -498,6 +519,26 @@ body {
     }
 }
 
+/* Update media queries */
+@media (min-width: 1921px) {
+    .eh_tab_links {
+        padding: 15px;
+    }
+    
+    .eh_tablink {
+        max-width: 250px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .eh_tablink {
+        min-width: 100px;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
 @media (max-width: 768px) {
     .eh-en-tête {
         height: 70px;
@@ -582,6 +623,42 @@ body {
         background: transparent;
         color: var(--primary-color);
     }
+
+    .eh-tab_links {
+        display: none; /* Hide tabs on mobile */
+    }
+
+    .eh-mobile-menu {
+        display: block; /* Show mobile menu */
+    }
+
+    .eh-mobile-controls {
+        display: flex;
+    }
+
+    .eh-mobile-menu.active .eh-mobile-controls {
+        display: flex;
+    }
+
+    .eh-lang-mobile {
+        display: flex;
+    }
+
+    #ehPagecontent {
+        margin-top: 90px; /* Adjust content margin for mobile */
+    }
+
+    /* Remove duplicate and combine all mobile styles here */
+    .eh-mobile-controls {
+        margin-top: auto;
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
 @media (max-width: 480px) {
@@ -608,4 +685,129 @@ body {
         padding: 6px;
         font-size: 1.1rem;
     }
+
+    .eh-header-wrapper {
+        padding: 0 10px;
+    }
+
+    .eh-header-search input {
+        font-size: 14px;
+    }
+}
+
+/* Add support for smaller devices */
+@media (max-width: 320px) {
+    .eh-mobile-menu {
+        width: 100%;
+    }
+
+    .eh-header-search input {
+        padding: 8px 35px 8px 12px;
+    }
+}
+
+.eh-lang-mobile {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.eh-lang-mobile span {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.eh-lang-select-mobile {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M2.9 4.1L6 7.2l3.1-3.1c.4-.4 1-.4 1.4 0 .4.4.4 1 0 1.4L6.7 9.3c-.4.4-1 .4-1.4 0L1.5 5.5c-.4-.4-.4-1 0-1.4.4-.4 1-.4 1.4 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 35px;
+    transition: all 0.3s ease;
+}
+
+.eh-lang-select-mobile:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Dark theme support for select dropdown */
+.dark-theme .eh-lang-select-mobile {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M2.9 4.1L6 7.2l3.1-3.1c.4-.4 1-.4 1.4 0 .4.4.4 1 0 1.4L6.7 9.3c-.4.4-1 .4-1.4 0L1.5 5.5c-.4-.4-.4-1 0-1.4.4-.4 1-.4 1.4 0z'/%3E%3C/svg%3E");
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-touch-callout: none) {
+    .eh-lang-select-mobile {
+        font-size: 16px;
+        padding: 12px 35px 12px 15px;
+    }
+}
+
+/* Mobile media queries update */
+@media (max-width: 768px) {
+    .eh-mobile-controls {
+        margin-top: auto;
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .eh-header-controls {
+        display: none; /* Hide desktop controls */
+    }
+
+    .eh-mobile-menu.active .eh-mobile-controls {
+        display: flex;
+    }
+
+    .eh-lang-mobile {
+        display: flex;
+    }
+
+    /* Ensure language selector is visible in mobile menu */
+    .eh-mobile-menu .eh-lang-mobile {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .eh-mobile-menu {
+        display: block;
+    }
+    
+    .eh-mobile-controls {
+        display: flex;
+    }
+}
+
+/* Add these accessibility improvements */
+.eh-mobile-close:focus-visible,
+.eh-mobile-links a:focus-visible,
+.eh-theme-toggle-mobile:focus-visible,
+.eh-lang-select-mobile:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Update focus styles */
+*:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
 }

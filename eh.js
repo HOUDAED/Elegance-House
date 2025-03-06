@@ -1,9 +1,17 @@
+/**
+ * Elegance House - Main JavaScript
+ * Version: 1.0.0
+ * Copyright (c) 2025 Elegance House
+ * License: MIT
+ */
+
 // Constants and state management
 const EH = {
     state: {
         isLoading: false,
         currentLang: 'fr',
-        theme: 'light'
+        theme: 'light',
+        currentTab: null  // Add this to track current tab
     },
     selectors: {
         content: '#ehPagecontent',
@@ -18,8 +26,34 @@ const EH = {
         mobileLinks: '.eh-mobile-links a',
         mobileThemeLabel: '.eh-theme-toggle-mobile span',
         mobileLangLabel: '.eh-lang-mobile span:first-child'
+    },
+    listeners: new Map(),
+    addListener(element, event, handler) {
+        if (!element) return;
+        element.addEventListener(event, handler);
+        
+        const key = `${element.tagName}-${event}`;
+        if (!this.listeners.has(key)) {
+            this.listeners.set(key, []);
+        }
+        this.listeners.get(key).push({ element, event, handler });
+    },
+    cleanup() {
+        this.listeners.forEach(listeners => {
+            listeners.forEach(({ element, event, handler }) => {
+                element.removeEventListener(event, handler);
+            });
+        });
+        this.listeners.clear();
     }
 };
+
+function closeMenu() {
+    const mobileMenu = document.querySelector(EH.selectors.mobileMenu);
+    mobileMenu?.classList.remove('active');
+    mobileMenu?.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
 
 // Translations object
 const translations = {
@@ -38,7 +72,8 @@ const translations = {
         error_message: "Erreur de chargement",
         retry: "Réessayer",
         select_french: "Français",
-        select_english: "Anglais"
+        select_english: "Anglais",
+        timeout_error: "Délai d'attente dépassé"
     },
     en: {
         search_placeholder: "Search...",
@@ -55,87 +90,119 @@ const translations = {
         error_message: "Loading error",
         retry: "Retry",
         select_french: "French",
-        select_english: "English"
+        select_english: "English",
+        timeout_error: "Request timed out"
     }
+};
+
+const metrics = {
+    pageLoads: 0,
+    errors: 0,
+    loadTimes: []
 };
 
 // Update loading content function to use translations
 async function ehPagecontentload(page) {
+    const startTime = performance.now();
+    if (!page) return;
     const contentDiv = document.querySelector(EH.selectors.content);
-    const lang = EH.state.currentLang;
+    if (!contentDiv) return;
+
+    EH.state.isLoading = true;
     
     try {
-        // Show loading state
         contentDiv.innerHTML = `
             <div class="eh-loading">
                 <i class="fas fa-spinner fa-spin"></i>
-                <span>${translations[lang].loading}</span>
+                <span>${translations[EH.state.currentLang].loading}</span>
             </div>`;
 
         const basePage = page.replace('.html', '');
-        const filePath = `pages/${basePage}_${lang}.html`;
+        const filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
         
-        const response = await fetch(filePath); // Add this line
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+        const fetchOptions = {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        };
+
+        const response = await fetch(filePath, { 
+            ...fetchOptions,
+            signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
             throw new Error(`${response.status}: ${response.statusText}`);
         }
 
         const html = await response.text();
         contentDiv.innerHTML = html;
-        
-        // Update active tab state
         updateActiveTab(basePage);
+        metrics.pageLoads++;
+        metrics.loadTimes.push(performance.now() - startTime);
 
     } catch (error) {
-        console.error('Loading error:', error);
+        metrics.errors++;
+        logError(error, 'pageLoad');
+        const errorMessage = error.name === 'AbortError' 
+            ? translations[EH.state.currentLang].timeout_error 
+            : error.message;
+            
         contentDiv.innerHTML = `
             <div class="eh-error">
                 <i class="fas fa-exclamation-circle"></i>
-                <p>${translations[lang].error_message}: ${error.message}</p>
-                <button onclick="retryLoad('${page}')">${translations[lang].retry}</button>
+                <p>${translations[EH.state.currentLang].error_message}: ${errorMessage}</p>
+                <button onclick="retryLoad('${page}')">${translations[EH.state.currentLang].retry}</button>
             </div>`;
+        throw error;
+    } finally {
+        EH.state.isLoading = false;
     }
 }
 
-// Mobile menu handlers
+// Fix mobile menu initialization
 function initializeMobileMenu() {
-    const mobileMenu = document.querySelector('.eh-mobile-menu');
-    const menuToggle = document.querySelector('.eh-menu-toggle');
-    const closeButton = document.querySelector('.eh-mobile-close');
-    const mobileLinks = document.querySelectorAll('.eh-mobile-links a');
+    const mobileMenu = document.querySelector(EH.selectors.mobileMenu);
+    const menuToggle = document.querySelector(EH.selectors.menuToggle);
+    const closeButton = document.querySelector(EH.selectors.closeButton);
+    const mobileLinks = document.querySelectorAll(EH.selectors.mobileLinks);
 
-    // Toggle menu
-    menuToggle?.addEventListener('click', () => {
-        mobileMenu?.classList.add('active');
-        mobileMenu?.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling
-    });
+    if (!mobileMenu || !menuToggle || !closeButton) {
+        console.error('Mobile menu elements not found');
+        return;
+    }
 
-    // Close menu
-    const closeMenu = () => {
-        mobileMenu?.classList.remove('active');
-        mobileMenu?.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = ''; // Restore scrolling
+    const toggleMenu = () => {
+        mobileMenu.classList.add('active');
+        mobileMenu.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
     };
 
-    closeButton?.addEventListener('click', closeMenu);
-
-    // Close when clicking outside
-    document.addEventListener('click', (e) => {
-        if (mobileMenu?.classList.contains('active') && 
+    // Use the new addListener method
+    EH.addListener(menuToggle, 'click', toggleMenu);
+    EH.addListener(closeButton, 'click', closeMenu);
+    EH.addListener(document, 'click', (e) => {
+        if (mobileMenu.classList.contains('active') && 
             !mobileMenu.contains(e.target) && 
             !menuToggle.contains(e.target)) {
             closeMenu();
         }
     });
 
-    // Handle mobile links
     mobileLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+        EH.addListener(link, 'click', (e) => {
             e.preventDefault();
-            const page = link.dataset.page;
-            ehPagecontentload(page);
-            closeMenu();
+            const page = e.currentTarget.dataset.page;
+            if (page) {
+                ehPagecontentload(page);
+                closeMenu();
+            }
         });
     });
 }
@@ -159,6 +226,10 @@ function initializeTheme() {
 }
 
 function setTheme(theme) {
+    if (theme !== 'light' && theme !== 'dark') {
+        theme = 'light';
+    }
+    
     // Update DOM and state
     document.documentElement.classList.toggle('dark-theme', theme === 'dark');
     localStorage.setItem('eh-theme', theme);
@@ -183,6 +254,11 @@ function setTheme(theme) {
 
 // Update language function
 function updateLanguage(lang) {
+    if (!translations[lang]) {
+        console.error(`Invalid language: ${lang}`);
+        lang = 'fr'; // Fallback to French
+    }
+    
     // Update state and document
     EH.state.currentLang = lang;
     document.documentElement.lang = lang;
@@ -283,15 +359,28 @@ function initializeTabs() {
 
 // Initialize everything
 document.addEventListener('DOMContentLoaded', () => {
-    initializeMobileMenu();
-    initializeTheme();
-    initializeLanguage();
-    initializeTabs(); // Add this line
+    try {
+        initializeMobileMenu();
+        initializeTheme();
+        initializeLanguage();
+        initializeTabs();
 
-    // Load default tab
-    const defaultTab = document.getElementById('defaultOpen');
-    if (defaultTab) {
-        const defaultPage = defaultTab.dataset.page;
-        ehPagecontentload(defaultPage);
+        const defaultTab = document.getElementById('defaultOpen');
+        if (defaultTab?.dataset.page) {
+            ehPagecontentload(defaultTab.dataset.page);
+        }
+
+        // Add cleanup on page unload
+        window.addEventListener('unload', () => {
+            EH.cleanup();
+        });
+    } catch (error) {
+        console.error('Initialization error:', error);
     }
 });
+
+function logError(error, context) {
+    console.error(`[${context}]:`, error);
+    // Add your production error logging service here
+    // Example: sendToErrorTracking(error, context);
+}
