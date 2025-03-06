@@ -182,8 +182,8 @@ body {
     display: flex;
     justify-content: center;
     gap: 15px;
-    box-sizing: border-box;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-sizing: border-box;
 }
 
 /* Tab buttons adjustments */
@@ -227,22 +227,23 @@ body {
 .eh-mobile-menu {
     position: fixed;
     top: 0;
-    left: -100%;
+    left: -280px;
     width: 280px;
     height: 100vh;
     background: var(--bg-color);
     z-index: var(--z-mobile-menu); /* This is good, keep higher than others */
-    transition: left 0.3s ease;
+    transition: transform 0.3s ease;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     background-color: var(--bg-color);
     border-right: 1px solid var(--border-color);
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     will-change: transform;
+    overflow-y: auto;
 }
 
 .eh-mobile-menu.active {
-    left: 0;
+    transform: translateX(280px);
 }
 
 .eh-mobile-nav {
@@ -268,10 +269,12 @@ body {
 }
 
 .eh-mobile-links {
-    margin-top: 30px;
+    margin-top: 60px;
+    margin-bottom: 100px; /* Add space for controls */
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding: 0 20px;
 }
 
 .eh-mobile-links a {
@@ -411,14 +414,14 @@ body {
 }
 
 .eh-mobile-controls {
-    margin-top: auto;
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    position: sticky;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    box-sizing: border-box;
+    padding: 20px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
 }
 
 .eh-theme-toggle-mobile, .eh-lang-select-mobile {
@@ -706,6 +709,32 @@ body {
     }
 }
 
+/* Add for better mobile handling */
+@media screen and (max-width: 360px) {
+    .eh-mobile-menu {
+        width: 100%;
+    }
+    
+    .eh-header-search input {
+        font-size: 13px;
+    }
+    
+    .eh-logo-section img {
+        height: 35px;
+    }
+}
+
+/* Add support for foldable devices */
+@media screen and (max-width: 280px) {
+    .eh-header-wrapper {
+        gap: 0.5rem;
+    }
+    
+    .eh-mobile-links {
+        padding: 0 10px;
+    }
+}
+
 .eh-lang-mobile {
     margin-top: 15px;
     display: flex;
@@ -813,9 +842,12 @@ body {
 }
 
 .eh-content {
-    margin-top: 140px; /* Adjust based on your header height */
+    margin-top: 140px;
     padding: 20px;
     min-height: calc(100vh - 140px);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .ehtabcontent {
@@ -825,4 +857,27 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+    .eh_tab_links {
+        display: none;
+    }
+}
+
+/* Loading state */
+.eh-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 40px;
+}
+
+/* Error state */
+.eh-error {
+    text-align: center;
+    padding: 40px;
+    color: var(--error-color);
 }

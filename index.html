@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Elegance House - Style & Élégance">
+    <meta name="author" content="HOUDAED">   
     <title>Elegance house</title>
     <link rel="stylesheet" href="eh.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="IMAGE/eh_logo.jpg" type="image/jpeg">
     <script src="eh.js" defer></script>
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
     <!--en-tête de la page -->
@@ -47,6 +52,15 @@
         </div>
     </header>
 
+    <!-- Desktop Navigation -->
+    <nav class="eh_tab_links" role="navigation">
+        <button class="eh_tablink" data-page="new" data-translate="nav_new" id="defaultOpen">Nouveau</button>
+        <button class="eh_tablink" data-page="product" data-translate="nav_products">Produits</button>
+        <button class="eh_tablink" data-page="formation" data-translate="nav_formation">Formation</button>
+        <button class="eh_tablink" data-page="promotion" data-translate="nav_promotion">Promotion</button>
+        <button class="eh_tablink" data-page="contact" data-translate="nav_contact">Contact</button>
+    </nav>
+
     <!-- Mobile menu -->
     <div class="eh-mobile-menu" role="dialog" aria-hidden="true">
         <nav class="eh-mobile-nav">
@@ -56,7 +70,7 @@
                 </button>
             </div>
             <div class="eh-mobile-links">
-                <a href="#" data-page="new" data-translate="nav_new" id="defaultOpen">Nouveau</a>
+                <a href="#" data-page="new" data-translate="nav_new">Nouveau</a>
                 <a href="#" data-page="product" data-translate="nav_products">Produits</a>
                 <a href="#" data-page="formation" data-translate="nav_formation">Formation</a>
                 <a href="#" data-page="promotion" data-translate="nav_promotion">Promotion</a>
@@ -66,10 +80,10 @@
                 <button class="eh-theme-toggle-mobile" aria-label="Changer le thème">
                     <i class="fas fa-sun light-icon"></i>
                     <i class="fas fa-moon dark-icon"></i>
-                    <span>Mode sombre</span>
+                    <span data-translate="mode_dark">Mode sombre</span>
                 </button>
                 <div class="eh-lang-mobile">
-                    <span>Langue:</span>
+                    <span data-translate="language">Langue:</span>
                     <select class="eh-lang-select-mobile" aria-label="Changer la langue">
                         <option value="fr">Français</option>
                         <option value="en">English</option>
@@ -84,7 +98,7 @@
         <!-- Content will be loaded here -->
         <div class="eh-loading">
             <i class="fas fa-spinner fa-spin"></i>
-            <span>Chargement en cours...</span>
+            <span data-translate="loading">Chargement en cours...</span>
         </div>
     </main>
 </body>

@@ -11,7 +11,9 @@ const EH = {
         isLoading: false,
         currentLang: 'fr',
         theme: 'light',
-        currentTab: null  // Add this to track current tab
+        currentTab: null,  // Add this to track current tab
+        currentPage: null,
+        loadingTimeout: 5000, // 5 seconds timeout
     },
     selectors: {
         content: '#ehPagecontent',
@@ -103,13 +105,22 @@ const metrics = {
 
 // Update loading content function to use translations
 async function ehPagecontentload(page) {
-    const startTime = performance.now();
-    if (!page) return;
-    const contentDiv = document.querySelector(EH.selectors.content);
-    if (!contentDiv) return;
+    if (EH.state.isLoading) {
+        console.log('Already loading, please wait...');
+        return;
+    }
 
     EH.state.isLoading = true;
-    
+    const startTime = performance.now();
+
+    const contentDiv = document.querySelector(EH.selectors.content);
+    if (!contentDiv) {
+        console.error('Content container not found:', EH.selectors.content);
+        return;
+    }
+    if (!page) return;
+    if (!contentDiv) return;
+
     try {
         contentDiv.innerHTML = `
             <div class="eh-loading">
@@ -119,7 +130,6 @@ async function ehPagecontentload(page) {
 
         const basePage = page.replace('.html', '');
         const filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
-        console.log('Loading file:', filePath); // Add this line
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
@@ -148,6 +158,7 @@ async function ehPagecontentload(page) {
         updateActiveTab(basePage);
         metrics.pageLoads++;
         metrics.loadTimes.push(performance.now() - startTime);
+        EH.state.currentPage = page;
 
     } catch (error) {
         metrics.errors++;
@@ -165,6 +176,7 @@ async function ehPagecontentload(page) {
         throw error;
     } finally {
         EH.state.isLoading = false;
+        metrics.loadTimes.push(performance.now() - startTime);
     }
 }
 
@@ -336,16 +348,29 @@ function initializeLanguage() {
 
 // Tab handling
 function updateActiveTab(file) {
+    if (!file) return;
+    
     EH.state.currentTab = file;
-    document.querySelectorAll(EH.selectors.tabLinks).forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.page === file);
-        tab.setAttribute('aria-current', tab.dataset.page === file);
+    const tabs = document.querySelectorAll(EH.selectors.tabLinks);
+    
+    tabs.forEach(tab => {
+        const isActive = tab.dataset.page === file;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-current', isActive ? 'page' : 'false');
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
 }
 
 // Retry loading on error
 function retryLoad(file) {
-    ehPagecontentload(file);
+    if (!file) {
+        console.error('No file specified for retry');
+        return;
+    }
+
+    ehPagecontentload(file).catch(error => {
+        logError(error, 'retryLoad');
+    });
 }
 
 // Add tab click handlers
@@ -362,20 +387,28 @@ function initializeTabs() {
 // Initialize everything
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        initializeMobileMenu();
-        initializeTheme();
-        initializeLanguage();
-        initializeTabs(); // Add this line - it was missing
-        
-        // Load default tab content
+        // First, check essential elements
+        const contentDiv = document.querySelector(EH.selectors.content);
+        if (!contentDiv) {
+            throw new Error('Content container not found');
+        }
+
+        // Initialize in correct order
+        initializeTheme();      // Theme first to prevent flash
+        initializeLanguage();   // Language second for translations
+        initializeMobileMenu(); // Menu third for interaction
+        initializeTabs();       // Tabs last for navigation
+
+        // Load default content
         const defaultTab = document.getElementById('defaultOpen');
         if (defaultTab) {
             ehPagecontentload(defaultTab.dataset.page);
         } else {
-            console.error('Default tab not found');
+            throw new Error('Default tab not found');
         }
     } catch (error) {
-        console.error('Initialization error:', error);
+        logError(error, 'initialization');
+        console.error('Initialization failed:', error);
     }
 });
 
