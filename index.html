@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr"> <!-- Default language -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Elegance House - Style & Élégance">
+    <title>Elegance house</title>
+    <link rel="stylesheet" href="eh.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="eh.js" defer></script>
+</head>
+<body>
+    <!--en-tête de la page -->
+    <header class="eh-en-tête">
+        <div class="eh-header-wrapper">
+            <!-- Left section -->
+            <div class="eh-header-left">
+                <button class="eh-menu-toggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="eh-logo-section">
+                    <img src="IMAGE/eh_logo.jpg" width="auto" height="40" alt="eh logo">
+                    <div class="eh-header-slogan">
+                        <span>Style & Élégance</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center section -->
+            <div class="eh-header-search" role="search">
+                <input type="search" placeholder="Rechercher..." data-translate="search_placeholder">
+                <button type="button" class="search-button" aria-label="Rechercher">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Right section -->
+            <div class="eh-header-controls">
+                <button class="eh-theme-toggle" aria-label="Changer le thème">
+                    <i class="fas fa-sun light-icon"></i>
+                    <i class="fas fa-moon dark-icon"></i>
+                </button>
+                <button class="eh-lang-toggle" aria-label="Changer la langue">
+                    <span class="current-lang">FR</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile menu -->
+    <div class="eh-mobile-menu" role="dialog" aria-hidden="true">
+        <nav class="eh-mobile-nav">
+            <div class="eh-mobile-header">
+                <button class="eh-mobile-close" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="eh-mobile-links">
+                <a href="#" data-page="new" data-translate="nav_new">Nouveau</a>
+                <a href="#" data-page="product" data-translate="nav_products">Produits</a>
+                <a href="#" data-page="formation" data-translate="nav_formation">Formation</a>
+                <a href="#" data-page="promotion" data-translate="nav_promotion">Promotion</a>
+                <a href="#" data-page="contact" data-translate="nav_contact">Contact</a>
+            </div>
+            <div class="eh-mobile-controls">
+                <button class="eh-theme-toggle-mobile" aria-label="Changer le thème">
+                    <i class="fas fa-sun light-icon"></i>
+                    <i class="fas fa-moon dark-icon"></i>
+                    <span>Mode sombre</span>
+                </button>
+                <div class="eh-lang-mobile">
+                    <span>Langue:</span>
+                    <select class="eh-lang-select-mobile" aria-label="Changer la langue">
+                        <option value="fr">Français</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Navigation tabs -->
+    <nav class="eh_tab_links" role="navigation">
+        <button class="eh_tablink" data-page="new" data-translate="nav_new" id="defaultOpen">Nouveau</button>
+        <button class="eh_tablink" data-page="product" data-translate="nav_products">Produits</button>
+        <button class="eh_tablink" data-page="formation" data-translate="nav_formation">Formation</button>
+        <button class="eh_tablink" data-page="promotion" data-translate="nav_promotion">Promotion</button>
+        <button class="eh_tablink" data-page="contact" data-translate="nav_contact">Contact</button>
+    </nav>
+
+    <!-- Main content -->
+    <main id="ehPagecontent" role="main">
+        <div class="eh-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Chargement en cours...</span>
+        </div>
+    </main>
+</body>
+</html>
