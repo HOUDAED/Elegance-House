@@ -18,6 +18,7 @@
     --focus-ring: 2px solid var(--primary-color);
     --focus-ring-offset: 2px;
     color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
 }
 
 :root.dark-theme {
@@ -34,7 +35,7 @@
 /* Add to prevent dark mode flash */
 @media (prefers-color-scheme: dark) {
     :root:not(.light-theme) {
-        /* Your dark theme variables */
+       
     }
 }
 
@@ -255,7 +256,6 @@ body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     will-change: transform;
-    overflow-y: auto;
 }
 
 .eh-mobile-menu.active {
@@ -948,4 +948,71 @@ body {
 .eh-mobile-overlay.active {
     opacity: 1;
     visibility: visible;
+}
+
+/* Add browser prefixes and fallbacks */
+@-moz-document url-prefix() {
+    .eh-header-slogan {
+        background-clip: text;
+    }
+}
+
+/* Touch device optimizations */
+@media (pointer: coarse) {
+    .eh_tablink,
+    .eh-theme-toggle,
+    .eh-lang-toggle,
+    .eh-mobile-close,
+    .search-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .eh-mobile-links a {
+        padding: 12px;
+    }
+}
+
+/* Small screen support */
+@media screen and (max-width: 320px) {
+    .eh-mobile-menu {
+        width: 100%;
+    }
+    
+    .eh-header-search input {
+        font-size: 16px;
+        padding: 8px 35px 8px 12px;
+    }
+    
+    .eh-logo-section {
+        min-width: 100px;
+    }
+}
+
+/* Foldable device support */
+@media screen and (max-width: 280px) {
+    .eh-header-wrapper {
+        gap: 0.25rem;
+    }
+    
+    .eh-mobile-links {
+        padding: 0 8px;
+    }
+}
+
+/* Performance improvements */
+.eh-mobile-menu {
+    will-change: transform;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
