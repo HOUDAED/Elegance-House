@@ -152,7 +152,15 @@ body {
     border: 2px solid #eee;
     border-radius: 25px;
     font-size: 0.9rem;
+    background-color: #ffffff;  /* White background in light mode */
+    color: #333333;            /* Dark text in light mode */
     transition: all 0.3s ease;
+}
+
+.dark-theme .eh-header-search input {
+    background-color: var(--card-bg);    /* Keep dark background in dark mode */
+    color: var(--text-color);            /* Keep light text in dark mode */
+    border-color: var(--border-color);
 }
 
 .eh-header-search input:focus {
