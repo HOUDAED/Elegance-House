@@ -441,4 +441,3 @@ function logError(error, context) {
     };
     console.error('Error:', errorInfo);
 }
-
