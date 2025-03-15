@@ -112,50 +112,52 @@ async function ehPagecontentload(page) {
 
     EH.state.isLoading = true;
     const startTime = performance.now();
-
     const contentDiv = document.querySelector(EH.selectors.content);
-    if (!contentDiv) {
-        console.error('Content container not found:', EH.selectors.content);
-        return;
-    }
-    if (!page) return;
-    if (!contentDiv) return;
+
+    if (!page || !contentDiv) return;
 
     try {
+        // Show loading state
         contentDiv.innerHTML = `
             <div class="eh-loading">
                 <i class="fas fa-spinner fa-spin"></i>
                 <span>${translations[EH.state.currentLang].loading}</span>
             </div>`;
 
-        const basePage = page.replace('.html', '');
-        const filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        // Construct file path based on page type
+        let filePath;
+        if (page === 'product') {
+            filePath = `pages/product_${EH.state.currentLang}.html`;
+            console.log('Loading product page:', filePath);
+        } else {
+            const basePage = page.replace('.html', '');
+            filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
+            console.log('Loading regular page:', filePath);
+        }
 
-        const fetchOptions = {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), EH.state.loadingTimeout);
+
+        const response = await fetch(filePath, {
             headers: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache',
                 'Expires': '0'
-            }
-        };
-
-        const response = await fetch(filePath, { 
-            ...fetchOptions,
-            signal: controller.signal 
+            },
+            signal: controller.signal
         });
+
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            console.error('Load failed:', response.status, response.statusText);
             throw new Error(`${response.status}: ${response.statusText}`);
         }
 
         const html = await response.text();
         contentDiv.innerHTML = html;
-        updateActiveTab(basePage);
+        updateActiveTab(page);
+        
+        // Update metrics
         metrics.pageLoads++;
         metrics.loadTimes.push(performance.now() - startTime);
         EH.state.currentPage = page;
@@ -163,20 +165,16 @@ async function ehPagecontentload(page) {
     } catch (error) {
         metrics.errors++;
         logError(error, 'pageLoad');
-        const errorMessage = error.name === 'AbortError' 
-            ? translations[EH.state.currentLang].timeout_error 
-            : error.message;
-            
+        
         contentDiv.innerHTML = `
             <div class="eh-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${translations[EH.state.currentLang].error_message}: ${errorMessage}</p>
-                <button onclick="retryLoad('${page}')">${translations[EH.state.currentLang].retry}</button>
+                <p>${translations[EH.state.currentLang].error_message}</p>
+                <button onclick="retryLoad('${page}')" class="eh-retry-btn">
+                    ${translations[EH.state.currentLang].retry}
+                </button>
             </div>`;
-        throw error;
     } finally {
         EH.state.isLoading = false;
-        metrics.loadTimes.push(performance.now() - startTime);
     }
 }
 
