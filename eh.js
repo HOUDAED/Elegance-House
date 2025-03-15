@@ -107,14 +107,18 @@ const metrics = {
 async function ehPagecontentload(page) {
     if (EH.state.isLoading) {
         console.log('Already loading, please wait...');
-        return;
+        return false;
     }
 
+    console.log('Loading page:', page); // Debug log
     EH.state.isLoading = true;
-    const startTime = performance.now();
     const contentDiv = document.querySelector(EH.selectors.content);
 
-    if (!page || !contentDiv) return;
+    if (!page || !contentDiv) {
+        console.error('Missing page or content div');
+        EH.state.isLoading = false;
+        return false;
+    }
 
     try {
         // Show loading state
@@ -124,48 +128,30 @@ async function ehPagecontentload(page) {
                 <span>${translations[EH.state.currentLang].loading}</span>
             </div>`;
 
-        // Construct file path based on page type
-        let filePath;
-        if (page === 'product') {
-            filePath = `pages/product_${EH.state.currentLang}.html`;
-            console.log('Loading product page:', filePath);
-        } else {
-            const basePage = page.replace('.html', '');
-            filePath = `pages/${basePage}_${EH.state.currentLang}.html`;
-            console.log('Loading regular page:', filePath);
-        }
+        const lang = EH.state.currentLang;
+        const filePath = `pages/${page}_${lang}.html`;
+        console.log('Loading file:', filePath);
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), EH.state.loadingTimeout);
-
-        const response = await fetch(filePath, {
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
+        const response = await fetch(filePath);
         if (!response.ok) {
-            throw new Error(`${response.status}: ${response.statusText}`);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const html = await response.text();
         contentDiv.innerHTML = html;
+
+        // If this is the product page, initialize category handlers
+        if (page === 'product') {
+            await initializeProductCategories(lang);
+        }
+
         updateActiveTab(page);
-        
-        // Update metrics
-        metrics.pageLoads++;
-        metrics.loadTimes.push(performance.now() - startTime);
         EH.state.currentPage = page;
+        return true;
 
     } catch (error) {
-        metrics.errors++;
+        console.error('Load error:', error);
         logError(error, 'pageLoad');
-        
         contentDiv.innerHTML = `
             <div class="eh-error">
                 <p>${translations[EH.state.currentLang].error_message}</p>
@@ -173,8 +159,67 @@ async function ehPagecontentload(page) {
                     ${translations[EH.state.currentLang].retry}
                 </button>
             </div>`;
+        return false;
     } finally {
         EH.state.isLoading = false;
+    }
+}
+
+async function initializeProductCategories(lang) {
+    const categories = document.querySelectorAll('.eh-category');
+    const productContent = document.getElementById('productContent');
+
+    if (!categories.length || !productContent) {
+        throw new Error('Product elements not found');
+    }
+
+    categories.forEach(category => {
+        const categoryName = category.dataset.category;
+        if (!categoryName) return;
+
+        category.addEventListener('click', async () => {
+            // Update active states
+            categories.forEach(c => c.classList.remove('active'));
+            category.classList.add('active');
+
+            try {
+                // Show loading
+                productContent.innerHTML = `
+                    <div class="eh-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>${translations[lang].loading}</span>
+                    </div>`;
+
+                // Load category content
+                const categoryPath = `pages/product_${lang}/${categoryName}_${lang}.html`;
+                console.log('Loading category:', categoryPath);
+
+                const response = await fetch(categoryPath);
+                if (!response.ok) throw new Error(`Failed to load ${categoryName}`);
+
+                const content = await response.text();
+                productContent.innerHTML = content;
+
+            } catch (error) {
+                console.error('Category load error:', error);
+                productContent.innerHTML = `
+                    <div class="eh-error">
+                        <p>${translations[lang].error_loading}</p>
+                        <button onclick="this.closest('.eh-category').click()" class="eh-retry-btn">
+                            ${translations[lang].retry}
+                        </button>
+                    </div>`;
+            }
+        });
+    });
+
+    // Load asooke by default
+    const defaultCategory = Array.from(categories)
+        .find(cat => cat.dataset.category === 'asooke');
+        
+    if (defaultCategory) {
+        console.log('Loading default category: asooke');
+        defaultCategory.click();
     }
 }
 
