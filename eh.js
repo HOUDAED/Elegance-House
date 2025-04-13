@@ -75,7 +75,24 @@ const translations = {
         retry: "Réessayer",
         select_french: "Français",
         select_english: "Anglais",
-        timeout_error: "Délai d'attente dépassé"
+        timeout_error: "Délai d'attente dépassé",
+        footer_about: "À propos",
+        footer_story: "Notre Histoire",
+        footer_values: "Nos Valeurs",
+        footer_artisans: "Nos Artisans",
+        footer_support: "Support",
+        footer_shipping: "Livraison",
+        footer_returns: "Retours",
+        footer_size_guide: "Guide des Tailles",
+        footer_privacy: "Confidentialité",
+        footer_terms: "Conditions",
+        footer_tagline: "Votre destination mode pour le tissu africain moderne",
+        footer_crafted: "Créé avec passion à Paris",
+        // Section content translations
+        footer_story_title: "Notre Histoire",
+        footer_values_title: "Nos Valeurs",
+        footer_shipping_title: "Livraison",
+        footer_returns_title: "Retours"
     },
     en: {
         search_placeholder: "Search...",
@@ -93,7 +110,24 @@ const translations = {
         retry: "Retry",
         select_french: "French",
         select_english: "English",
-        timeout_error: "Request timed out"
+        timeout_error: "Request timed out",
+        footer_about: "About",
+        footer_story: "Our Story",
+        footer_values: "Our Values",
+        footer_artisans: "Our Artisans",
+        footer_support: "Support",
+        footer_shipping: "Shipping",
+        footer_returns: "Returns",
+        footer_size_guide: "Size Guide",
+        footer_privacy: "Privacy",
+        footer_terms: "Terms",
+        footer_tagline: "Your fashion destination for modern African fabric",
+        footer_crafted: "Crafted with passion in Paris",
+        // Section content translations
+        footer_story_title: "Our Story",
+        footer_values_title: "Our Values",
+        footer_shipping_title: "Shipping",
+        footer_returns_title: "Returns"
     }
 };
 
@@ -162,6 +196,89 @@ async function ehPagecontentload(page) {
         return false;
     } finally {
         EH.state.isLoading = false;
+    }
+}
+
+// Add this function for better error handling
+async function safeScrollToContent(contentDiv) {
+    try {
+        // First attempt smooth scroll
+        await contentDiv.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+        });
+    } catch (error) {
+        // Fallback for older browsers
+        try {
+            window.scrollTo({
+                top: Math.max(0, contentDiv.offsetTop - 100),
+                left: 0,
+                behavior: 'smooth'
+            });
+        } catch (scrollError) {
+            // Ultimate fallback
+            window.scrollTo(0, Math.max(0, contentDiv.offsetTop - 100));
+        }
+    }
+}
+
+// Update handleFooterContent function
+async function handleFooterContent(page) {
+    const contentDiv = document.querySelector(EH.selectors.content);
+    const lang = EH.state.currentLang;
+    
+    if (!contentDiv || !page) {
+        console.error('Missing required elements');
+        return;
+    }
+
+    try {
+        // Reset navigation state
+        document.querySelectorAll('.eh_tablink').forEach(tab => {
+            tab.classList.remove('active');
+            tab.setAttribute('aria-current', 'false');
+        });
+
+        // Show loading state with fade
+        contentDiv.style.opacity = '0';
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        contentDiv.innerHTML = `
+            <div class="eh-loading" role="alert" aria-live="polite">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>${translations[lang].loading}</span>
+            </div>`;
+        contentDiv.style.opacity = '1';
+
+        // Fetch content
+        const response = await fetch(`pages/${page}_${lang}.html`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const content = await response.text();
+        
+        // Update content with transition
+        contentDiv.style.opacity = '0';
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        contentDiv.innerHTML = content;
+        contentDiv.style.opacity = '1';
+
+        // Scroll to content
+        await safeScrollToContent(contentDiv);
+
+        // Update page state
+        EH.state.currentPage = page;
+
+    } catch (error) {
+        console.error('Error loading footer content:', error);
+        contentDiv.innerHTML = `
+            <div class="eh-error" role="alert">
+                <p>${translations[lang].error_message}</p>
+                <button onclick="handleFooterContent('${page}')" class="eh-retry-btn">
+                    ${translations[lang].retry}
+                </button>
+            </div>`;
     }
 }
 
@@ -445,6 +562,50 @@ function initializeTabs() {
     });
 }
 
+// Modify the event listener initialization in document.addEventListener('DOMContentLoaded')
+function initializeFooterLinks() {
+    document.querySelectorAll('.eh-footer-section a[data-page]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = e.currentTarget.dataset.page;
+            handleFooterContent(page);
+            
+            // Close mobile menu if open
+            const mobileMenu = document.querySelector('.eh-mobile-menu');
+            if (mobileMenu?.classList.contains('active')) {
+                closeMenu();
+            }
+        });
+    });
+}
+
+function initializeBackToTop() {
+    // Create button element
+    const backToTop = document.createElement('button');
+    backToTop.className = 'eh-back-to-top';
+    backToTop.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    backToTop.setAttribute('aria-label', 'Retour en haut');
+    document.body.appendChild(backToTop);
+
+    // Show/hide button based on scroll position
+    function toggleBackToTop() {
+        const scrolled = window.scrollY;
+        backToTop.classList.toggle('visible', scrolled > 300);
+    }
+
+    // Smooth scroll to top
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Event listeners
+    window.addEventListener('scroll', toggleBackToTop);
+    backToTop.addEventListener('click', scrollToTop);
+}
+
 // Initialize everything
 document.addEventListener('DOMContentLoaded', () => {
     try {
@@ -459,6 +620,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeLanguage();   // Language second for translations
         initializeMobileMenu(); // Menu third for interaction
         initializeTabs();       // Tabs last for navigation
+        initializeFooterLinks(); // Add this line
+        initializeBackToTop();
 
         // Load default content
         const defaultTab = document.getElementById('defaultOpen');
@@ -467,6 +630,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             throw new Error('Default tab not found');
         }
+
+        // Add footer links handling
+        document.querySelectorAll('.eh-footer-section a[data-page]').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const page = e.currentTarget.dataset.page;
+                await ehPagecontentload(page);
+            });
+        });
+
     } catch (error) {
         logError(error, 'initialization');
         console.error('Initialization failed:', error);
