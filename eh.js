@@ -646,6 +646,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle des filtres
+    const filterToggle = document.querySelector('.eh-filter-toggle');
+    const filtersMenu = document.querySelector('.eh-news-filters');
+
+    filterToggle.addEventListener('click', () => {
+        filtersMenu.classList.toggle('visible');
+    });
+
+    // Fermer le menu des filtres en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.eh-filter-toggle') && 
+            !e.target.closest('.eh-news-filters')) {
+            filtersMenu.classList.remove('visible');
+        }
+    });
+
+    // Filtrage
+    const filterBtns = document.querySelectorAll('.eh-filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            filterContent(filter);
+            filtersMenu.classList.remove('visible');
+        });
+    });
+});
+
 function logError(error, context) {
     const errorInfo = {
         context,
@@ -657,3 +685,4 @@ function logError(error, context) {
     };
     console.error('Error:', errorInfo);
 }
+

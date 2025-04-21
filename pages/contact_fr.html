@@ -1,4 +1,64 @@
 <div class="ehtabcontent">
-    <h1>Contact</h1>
+    <h1 class="eh-section-title">Contactez-nous</h1>
     
+    <div class="eh-contact-wrapper">
+        <!-- Informations de Contact -->
+        <div class="eh-contact-info">
+            <div class="eh-contact-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Notre Adresse</h3>
+                <p>123 Rue de la Mode</p>
+                <p>75001 Paris, France</p>
+            </div>
+            
+            <div class="eh-contact-card">
+                <i class="fas fa-clock"></i>
+                <h3>Heures d'Ouverture</h3>
+                <p>Lundi - Vendredi : 10h00 - 19h00</p>
+                <p>Samedi : 10h00 - 17h00</p>
+            </div>
+            
+            <div class="eh-contact-card">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Téléphone</h3>
+                <p>+33 1 23 45 67 89</p>
+                <p>+33 1 98 76 54 32</p>
+            </div>
+        </div>
+
+        <!-- Formulaire de Contact -->
+        <div class="eh-contact-form">
+            <form id="contactForm">
+                <div class="eh-form-group">
+                    <input type="text" id="name" required>
+                    <label for="name">Votre Nom</label>
+                </div>
+
+                <div class="eh-form-group">
+                    <input type="email" id="email" required>
+                    <label for="email">Votre Email</label>
+                </div>
+
+                <div class="eh-form-group">
+                    <select id="subject" required>
+                        <option value="" disabled selected>Sélectionnez un Sujet</option>
+                        <option value="order">Question sur une Commande</option>
+                        <option value="product">Information Produit</option>
+                        <option value="support">Service Client</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+
+                <div class="eh-form-group">
+                    <textarea id="message" rows="5" required></textarea>
+                    <label for="message">Votre Message</label>
+                </div>
+
+                <button type="submit" class="eh-submit-btn">
+                    <span>Envoyer le Message</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

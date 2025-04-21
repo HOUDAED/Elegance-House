@@ -1,5 +1,66 @@
 <div class="ehtabcontent">
-    <h1>Nouveau</h1>
+    <section class="eh-news-feed">
+        <header class="eh-news-header">
+            <h1 class="eh-section-title">Actualités</h1>
+            <button class="eh-filter-toggle">
+                <i class="fas fa-filter"></i>
+                <span>Filtrer</span>
+            </button>
+            
+            <!-- Filtres masqués par défaut -->
+            <div class="eh-news-filters" aria-hidden="true">
+                <button class="eh-filter-btn active" data-filter="all">Tout</button>
+                <button class="eh-filter-btn" data-filter="collections">Collections</button>
+                <button class="eh-filter-btn" data-filter="events">Événements</button>
+                <button class="eh-filter-btn" data-filter="promos">Promotions</button>
+                <button class="eh-filter-btn" data-filter="live">En Direct</button>
+            </div>
+        </header>
 
+        <div class="eh-news-grid">
+            <!-- Nouvelle Collection Preview -->
+            <article class="eh-news-card collection">
+                <div class="eh-news-image">
+                    <img src="../../IMAGE/news/new-collection.jpg" alt="Collection Été">
+                    <span class="eh-news-tag">Nouvelle Collection</span>
+                </div>
+                <div class="eh-news-content">
+                    <time datetime="2025-05-20">20 Mai 2025</time>
+                    <h2>Collection Été 2025</h2>
+                    <p>Notre nouvelle collection inspirée des motifs africains est disponible.</p>
+                    <div class="eh-news-actions">
+                        <a href="../product_fr/brocade_fr.html" class="eh-action-btn">
+                            Découvrir la Collection
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
 
+            <!-- Live Event Preview -->
+            <article class="eh-news-card live">
+                <div class="eh-news-image">
+                    <img src="../../IMAGE/events/fashion-show.jpg" alt="Défilé Mode">
+                    <div class="eh-live-indicator">
+                        <span class="eh-pulse"></span>
+                        En Direct
+                    </div>
+                </div>
+                <div class="eh-news-content">
+                    <div class="eh-event-meta">
+                        <time datetime="2025-05-25T19:00">25 Mai • 19h00</time>
+                        <span class="eh-location">Paris</span>
+                    </div>
+                    <h2>Défilé Collection Été</h2>
+                    <p>Rejoignez-nous pour découvrir en direct notre nouvelle collection.</p>
+                    <div class="eh-news-actions">
+                        <a href="#live-stream" class="eh-action-btn live">
+                            Accéder au Direct
+                            <i class="fas fa-play"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
 </div>

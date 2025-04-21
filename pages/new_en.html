@@ -1,4 +1,85 @@
 <div class="ehtabcontent">
-    <h1>New</h1>
-    
+    <section class="eh-news-feed">
+        <header class="eh-news-header">
+            <h1 class="eh-section-title">News</h1>
+            <button class="eh-filter-toggle">
+                <i class="fas fa-filter"></i>
+                <span>Filter</span>
+            </button>
+            
+            <!-- Hidden filters by default -->
+            <div class="eh-news-filters" aria-hidden="true">
+                <button class="eh-filter-btn active" data-filter="all">All</button>
+                <button class="eh-filter-btn" data-filter="collections">Collections</button>
+                <button class="eh-filter-btn" data-filter="events">Events</button>
+                <button class="eh-filter-btn" data-filter="promos">Promotions</button>
+                <button class="eh-filter-btn" data-filter="live">Live</button>
+            </div>
+        </header>
+
+        <div class="eh-news-grid">
+            <!-- New Collection Preview -->
+            <article class="eh-news-card collection">
+                <div class="eh-news-image">
+                    <img src="../../IMAGE/news/new-collection.jpg" alt="Summer Collection">
+                    <span class="eh-news-tag">New Collection</span>
+                </div>
+                <div class="eh-news-content">
+                    <time datetime="2025-05-20">May 20, 2025</time>
+                    <h2>Summer Collection 2025</h2>
+                    <p>Our new collection inspired by African patterns is now available.</p>
+                    <div class="eh-news-actions">
+                        <a href="../product_en/collection_en.html" class="eh-action-btn">
+                            View Collection
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Live Event Preview -->
+            <article class="eh-news-card live">
+                <div class="eh-news-image">
+                    <img src="../../IMAGE/events/fashion-show.jpg" alt="Fashion Show">
+                    <div class="eh-live-indicator">
+                        <span class="eh-pulse"></span>
+                        Live
+                    </div>
+                </div>
+                <div class="eh-news-content">
+                    <div class="eh-event-meta">
+                        <time datetime="2025-05-25T19:00">May 25 • 7:00 PM</time>
+                        <span class="eh-location">Paris</span>
+                    </div>
+                    <h2>Summer Fashion Show</h2>
+                    <p>Join us live for the unveiling of our latest collection.</p>
+                    <div class="eh-news-actions">
+                        <a href="#live-stream" class="eh-action-btn live">
+                            Join Live Stream
+                            <i class="fas fa-play"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Promotion Preview -->
+            <article class="eh-news-card promo">
+                <div class="eh-news-image">
+                    <img src="../../IMAGE/promos/summer-sale.jpg" alt="Summer Sale">
+                    <span class="eh-news-tag">Promotion</span>
+                </div>
+                <div class="eh-news-content">
+                    <time datetime="2025-06-01">June 1 - June 30, 2025</time>
+                    <h2>Summer Sale</h2>
+                    <p>Enjoy 30% off on selected summer items.</p>
+                    <div class="eh-news-actions">
+                        <a href="../promotion_en.html" class="eh-action-btn">
+                            Shop Now
+                            <i class="fas fa-shopping-bag"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
 </div>
